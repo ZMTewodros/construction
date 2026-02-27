@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --color-navy: #0A192F;
+  --color-accent: #F59E0B;
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-8 py-3 font-bold uppercase bg-[--color-navy] text-white rounded transition-colors inline-block text-center cursor-pointer;
+  }
+  
+  .btn-primary:hover {
+    @apply bg-[--color-accent] text-[--color-navy];
+  }
+
+  .btn-outline {
+    @apply px-8 py-3 font-bold uppercase border-2 border-[--color-navy] text-[--color-navy] rounded transition-all hover:bg-[--color-navy] hover:text-white;
+  }
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased bg-slate-50;
+  }
+}
