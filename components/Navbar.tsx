@@ -10,13 +10,13 @@ const navLinks = [
   { name: 'About US', href: '/about' },
   { name: 'Services', href: '/services' },
   { name: 'Projects', href: '/projects' },
-    { name: 'Contact US', href: '/contact' },
+  { name: 'Contact US', href: '/contact' },
 ];
-
+ 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
+ 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
