@@ -26,23 +26,19 @@ export const ContactContent = () => {
             name: formState.name,
             email: formState.email,
             phone: formState.phone,
-            project_type: formState.projectType, // Direct column mapping
-            location: formState.location,       // Direct column mapping
-            message: formState.message          // Purely the "details" text
+            project_type: formState.projectType,
+            location: formState.location,
+            message: formState.message
           }
         ]);
 
       if (error) throw error;
 
-      alert(" request sent successfully! We will get back to you soon.");
+      alert("Request sent successfully! We will get back to you soon.");
       
       setFormState({
-        name: '',
-        email: '',
-        phone: '',
-        projectType: 'Residential',
-        location: '',
-        message: ''
+        name: '', email: '', phone: '',
+        projectType: 'Residential', location: '', message: ''
       });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -134,7 +130,7 @@ export const ContactContent = () => {
                     <select 
                       value={formState.projectType}
                       onChange={(e) => setFormState({...formState, projectType: e.target.value})}
-                      className="w-full bg-slate-50 border border-gray-200 px-4 py-4 focus:border-[#F59E0B] focus:bg-white focus:outline-none transition-all"
+                      className="w-full bg-slate-50 border border-gray-200 px-4 py-4 focus:border-[#F59E0B] focus:bg-white focus:outline-none transition-all font-bold"
                     >
                       <option>Residential</option>
                       <option>Commercial</option>
@@ -163,7 +159,7 @@ export const ContactContent = () => {
                   <div className="md:col-span-2">
                     <button 
                       type="submit" disabled={isSubmitting}
-                      className="w-full bg-[#F59E0B] text-[#0A192F] py-5 font-black uppercase tracking-widest hover:bg-[#0A192F] hover:text-white transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                      className="w-full bg-[#F59E0B] text-[#0A192F] py-5 font-black uppercase tracking-widest hover:bg-[#0A192F] hover:text-white transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg"
                     >
                       {isSubmitting ? "Processing..." : "Send Request"} <Send size={20} />
                     </button>
@@ -173,6 +169,20 @@ export const ContactContent = () => {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* --- GOOGLE MAP SECTION --- */}
+      <section className="w-full h-[500px] bg-slate-100 grayscale hover:grayscale-0 transition-all duration-700">
+        <iframe 
+          title="Ethio Construction Office"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.548482458421!2d38.80004907575306!3d9.013627589178494!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b856406a454d5%3A0x6b162586e92d6e36!2sMegenagna%2C%20Addis%20Ababa!5e0!3m2!1sen!2set!4v1715800000000!5m2!1sen!2set" 
+          width="100%" 
+          height="100%" 
+          style={{ border: 0 }} 
+          allowFullScreen={true} 
+          loading="lazy" 
+          referrerPolicy="no-referrer-when-downgrade"
+        ></iframe>
       </section>
     </div>
   );
