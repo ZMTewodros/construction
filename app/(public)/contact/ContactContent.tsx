@@ -34,7 +34,7 @@ export const ContactContent = () => {
 
       if (error) throw error;
 
-      alert("Quote request sent successfully!");
+      alert(" request sent successfully! We will get back to you soon.");
       
       setFormState({
         name: '',
@@ -139,6 +139,7 @@ export const ContactContent = () => {
                       <option>Residential</option>
                       <option>Commercial</option>
                       <option>Industrial</option>
+                      <option>Infrastructure</option>
                     </select>
                   </div>
                   <div className="md:col-span-2 space-y-2">
