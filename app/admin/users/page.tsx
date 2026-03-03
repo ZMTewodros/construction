@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Trash2, UserPlus, Loader2, ShieldCheck, User, AlertTriangle } from 'lucide-react';
+import { Trash2, UserPlus, Loader2, ShieldCheck, User } from 'lucide-react';
 
 export default function ManageAdmins() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,9 +90,7 @@ export default function ManageAdmins() {
           <h1 className="text-3xl font-black text-[#0A192F] uppercase tracking-tight">User Permissions</h1>
           <p className="text-gray-500 font-medium">Full control over internal access.</p>
         </div>
-        <div className="bg-red-50 text-red-700 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 border border-red-100">
-          <AlertTriangle size={14} /> Super Admin Power Active
-        </div>
+       
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">

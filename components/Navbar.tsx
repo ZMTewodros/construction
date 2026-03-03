@@ -20,18 +20,7 @@ const navLinks = [
   { name: "Contact Us", href: "/contact" }
 ];
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [hovered, setHovered] = useState(null);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  function LogoBlock() {
+function LogoBlock() {
   return (
     <span className="flex items-center bg-white rounded-md shadow-sm py-2 pl-3 pr-6 space-x-4">
       {/* SVG icon */}
@@ -69,6 +58,17 @@ export default function Navbar() {
     </span>
   );
 }
+
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <nav

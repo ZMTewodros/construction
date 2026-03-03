@@ -50,7 +50,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex min-h-screen bg-gray-50">
       <aside className="w-64 bg-[#0A192F] text-white flex flex-col fixed h-full">
         <div className="p-6 border-b border-slate-800">
-          <h1 className="text-xl font-black text-[#F59E0B] tracking-tighter uppercase">Ethio Admin</h1>
+          <Link href="/">
+            <h1 className="text-xl font-black text-[#F59E0B] tracking-tighter">Tihut Admin</h1>
+          </Link>
           <p className="text-[10px] text-slate-400 uppercase font-bold mt-1 tracking-widest">{role.replace('_', ' ')}</p>
         </div>
         <nav className="flex-1 p-4 space-y-2 mt-4">

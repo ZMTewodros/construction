@@ -2,64 +2,93 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home as House, Building2, Ruler, HardHat, Truck, ArrowRight } from 'lucide-react';
+import { 
+  Home as House, 
+  Building2, 
+  HardHat, 
+  Truck, 
+  // ArrowRight, 
+  Trees, 
+  Paintbrush, 
+  ShoppingBag, 
+  Briefcase 
+} from 'lucide-react';
 import Link from 'next/link';
 
 export const ServicesContent = () => {
   const services = [
     {
+      icon: Briefcase,
+      title: "General Contractor (GC)",
+      desc: "Licensed general contracting services overseeing complex construction projects from ground-breaking to handover, ensuring compliance, safety, and excellence.",
+      features: ["Full Project Execution", "Regulatory Compliance", "Subcontractor Management", "Site Safety"]
+    },
+    {
+      icon: ShoppingBag,
+      title: "Wholesale Distribution",
+      desc: "Providing high-quality construction materials and equipment at wholesale scale. We supply the essential components for large-scale infrastructure projects.",
+      features: ["Bulk Material Supply", "Equipment Logistics", "Quality Sourcing", "Supply Chain Solutions"]
+    },
+    {
+      icon: Trees,
+      title: "Landscape Design",
+      desc: "Creating sustainable and aesthetic outdoor environments. Our landscaping services blend architectural needs with environmental beauty.",
+      features: ["Urban Greenery", "Garden Architecture", "Irrigation Systems", "Site Grading"]
+    },
+    {
+      icon: Paintbrush,
+      title: "Finishing Works",
+      desc: "The final touch that defines quality. We specialize in high-end interior and exterior finishing, including tiling, painting, and architectural detailing.",
+      features: ["Epoxy Flooring Systems", "Aluminum Doors & Windows", "Quartz Countertops Installation", "Plastering & Painting"]
+    },
+    {
       icon: House,
       title: "Residential Construction",
-      desc: "We specialize in building high-end residential homes, villas, and apartment complexes. Our focus is on quality craftsmanship and modern architectural designs that stand the test of time.",
-      features: ["Custom Home Building", "Apartment Complexes", "Villa Developments", "Interior Finishing"]
+      desc: "We specialize in building high-end residential homes, villas, and apartment complexes with a focus on modern craftsmanship.",
+      features: ["Custom Home Building", "Apartment Complexes", "Villa Developments", "Smart Home Ready"]
     },
     {
       icon: Building2,
       title: "Commercial Infrastructure",
-      desc: "From corporate headquarters to shopping malls, we deliver commercial spaces that are functional, sustainable, and aesthetically pleasing to enhance business productivity.",
-      features: ["Office Buildings", "Retail Spaces", "Hotels & Resorts", "Mixed-use Developments"]
-    },
-        {
-      icon: Ruler,
-      title: "Project Management",
-      desc: "Comprehensive oversight from conception to completion. We manage budgets, timelines, and subcontractors to ensure your project is delivered exactly as envisioned.",
-      features: ["Cost Estimation", "Site Supervision", "Risk Management", "Quality Control"]
+      desc: "Delivering functional and sustainable commercial spaces including corporate headquarters, malls, and hospitality resorts.",
+      features: ["Office Buildings", "Retail Spaces", "Hotels & Resorts", "Mixed-use Hubs"]
     },
     {
       icon: HardHat,
       title: "Industrial Facilities",
-      desc: "Building the backbone of industry. We construct warehouses, factories, and logistics centers designed for heavy-duty operations and maximum efficiency.",
-      features: ["Warehouses", "Manufacturing Plants", "Cold Storage", "Distribution Centers"]
+      desc: "Building the backbone of industry. We construct warehouses and factories designed for heavy-duty operations and efficiency.",
+      features: ["Manufacturing Plants", "Logistics Centers", "Cold Storage", "Industrial Parks"]
     },
     {
       icon: Truck,
       title: "Civil Engineering",
-      desc: "Essential infrastructure for a growing nation. Our civil engineering team handles roads, bridges, and drainage systems with technical excellence.",
+      desc: "Essential infrastructure for a growing nation. Our team handles roads, bridges, and drainage systems with technical excellence.",
       features: ["Road Construction", "Bridge Engineering", "Drainage Systems", "Earthworks"]
-    }
+    },
+    
   ];
 
   return (
-    <div className="pt-20">
-      {/* Header */}
-      <section className="bg-navy py-24 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 blueprint-bg"></div>
+    <div className="pt-20 bg-white">
+      {/* --- HEADER SECTION --- */}
+      <section className="bg-white py-24 relative overflow-hidden border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl md:text-6xl text-white font-black uppercase mb-6">
-              Our <span className="text-accent">Services</span>
+            <h1 className="text-5xl md:text-6xl text-[#1E40AF] font-black  mb-6">
+              Our <span className="text-[#15803d]">Services</span>
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              From the first brick to the final touch, we provide end-to-end construction solutions across Ethiopia.
+            <p className="text-xl text-slate-500 max-w-2xl mx-auto font-medium">
+              Comprehensive engineering and construction solutions tailored to build Ethiopia&apos;s future.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Services Grid */}
+      {/* --- SERVICES GRID --- */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -69,47 +98,57 @@ export const ServicesContent = () => {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="group p-8 border border-gray-100 bg-gray-50 hover:bg-white hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
+                transition={{ delay: i * 0.05 }}
+                className="group p-8 border border-gray-100 bg-white shadow-sm hover:shadow-2xl transition-all duration-500 relative overflow-hidden rounded-sm"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-navy/5 -mr-8 -mt-8 rounded-full transition-transform group-hover:scale-150"></div>
+                {/* Subtle accent hover background */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#1E40AF]/5 -mr-8 -mt-8 rounded-full transition-transform group-hover:scale-[2.5] duration-700"></div>
                 
-                <service.icon className="text-accent mb-6" size={48} />
-                <h3 className="text-2xl font-black uppercase text-navy mb-4">{service.title}</h3>
-                <p className="text-gray-600 mb-8 leading-relaxed">
+                <service.icon className="text-[#15803d] mb-6 group-hover:scale-110 transition-transform duration-300" size={48} />
+                
+                <h3 className="text-2xl font-black text-[#1E40AF] mb-4">
+                  {service.title}
+                </h3>
+                
+                <p className="text-slate-600 mb-8 leading-relaxed font-medium">
                   {service.desc}
                 </p>
                 
                 <ul className="space-y-3 mb-8">
                   {service.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center text-sm font-bold text-navy uppercase tracking-wider">
-                      <div className="w-2 h-2 bg-accent mr-3"></div>
+                    <li key={idx} className="flex items-center text-lg font-bold text-[#1E40AF]  tracking-wider">
+                      <div className="w-2 h-2 bg-[#15803d] mr-3"></div>
                       {feature}
                     </li>
                   ))}
                 </ul>
 
-                <Link 
+                {/* <Link 
                   href="/contact" 
-                  className="inline-flex items-center gap-2 text-navy font-black uppercase text-xs tracking-[0.2em] group-hover:text-accent transition-colors"
+                  className="inline-flex items-center gap-2 text-[#1E40AF] font-black uppercase text-xs tracking-[0.2em] group-hover:text-[#15803d] transition-colors"
                 >
                   View Detail <ArrowRight size={16} />
-                </Link>
+                </Link> */}
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA
-      <section className="py-20 bg-accent">
+      {/* --- CTA SECTION --- */}
+      <section className="py-20 bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-black uppercase text-navy mb-8">Ready to start your project?</h2>
-          <Link href="/contact" className="btn-primary bg-navy text-white hover:bg-white hover:text-navy">
+          <h2 className="text-4xl font-black uppercase text-[#1E40AF] mb-8">
+            Ready to start your <span className="text-[#15803d]">project?</span>
+          </h2>
+          <Link 
+            href="/contact" 
+            className="inline-block bg-[#1E40AF] text-white px-8 py-4 font-black uppercase tracking-widest hover:bg-[#15803d] transition-all duration-300 shadow-lg"
+          >
             Get a Free Consultation
           </Link>
         </div>
-      </section> */}
+      </section>
     </div>
   );
 };
