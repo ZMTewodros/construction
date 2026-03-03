@@ -1,54 +1,89 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, ShieldCheck } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
   { name: "Home", href: "/" },
   {
-    name: "About US",
+    name: "About Us",
     href: "/about",
     subLinks: [
       { name: "Company Profile", href: "/about" },
-      { name: "Our Team", href: "/about/team" },
-    ],
+      { name: "Our Team", href: "/about/team" }
+    ]
   },
   { name: "Services", href: "/services" },
   { name: "Projects", href: "/projects" },
-  { name: "Contact US", href: "/contact" },
+  { name: "Contact Us", href: "/contact" }
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-const [hovered, setHovered] = useState<string | null>(null);
+  const [hovered, setHovered] = useState(null);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  function LogoBlock() {
+  return (
+    <span className="flex items-center bg-white rounded-md shadow-sm py-2 pl-3 pr-6 space-x-4">
+      {/* SVG icon */}
+      <span className="flex-none flex items-center justify-center">
+        <svg
+          viewBox="0 0 100 100"
+          fill="none"
+          width={64}
+          height={64}
+          className="block"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Blue 't' part */}
+          <rect x="18" y="10" width="9" height="70" fill="#1E40AF" /> {/* Vertical stem */}
+          <rect x="8" y="25" width="42" height="9" fill="#1E40AF" /> {/* Crossbar */}
+          <rect x="18" y="71" width="28" height="9" fill="#1E40AF" /> {/* Bottom tail */}
+          
+          {/* Grey 'h' part */}
+          <rect x="58" y="45" width="9" height="35" fill="#64748B" /> {/* Vertical stem */}
+          <rect x="32" y="45" width="35" height="9" fill="#64748B" /> {/* Top horizontal bar */}
+        </svg>
+      </span>
+      {/* Texts */}
+      <span className="flex flex-col justify-center leading-tight">
+        <span className="text-[#64748B] font-bold text-lg md:text-xl font-ethiopic tracking-tight">
+          ትሑት ኢንጅነሪንግ
+        </span>
+        <span className="text-[#1E40AF] font-bold text-lg md:text-2xl -mt-1 tracking-tighter" style={{ fontFamily: 'Arial Black, sans-serif' }}>
+          TIHUT ENGINEERING
+        </span>
+        <span className="italic text-green-700 text-[11px] md:text-[13px] mt-1 font-serif -ml-20">
+          Engineering with humility
+        </span>
+      </span>
+    </span>
+  );
+}
+
   return (
     <nav
       className={`fixed w-full z-[100] transition-all duration-500 ${
-        scrolled ? "bg-[#0D2447] py-4 shadow-2xl" : "bg-transparent py-6"
+        scrolled ? "bg-white py-3 shadow-xl" : "bg-transparent py-5"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         {/* LOGO */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="bg-[#C2912E] p-2 rounded-md shadow-lg group-hover:scale-110 transition-transform duration-300">
-            <ShieldCheck size={28} className="text-white" />
-          </div>
-          <span className="text-[#C2912E] font-bold text-xl uppercase tracking-tight">
-            Ethio Construction
-          </span>
+        <Link href="/" className="block" aria-label="Tihut Engineering Home">
+          <LogoBlock />
         </Link>
 
         {/* DESKTOP NAV */}
-        <div className="hidden lg:flex items-center space-x-12">
+        <div className="hidden lg:flex items-center space-x-10">
           {navLinks.map((link) => (
             <div
               key={link.name}
@@ -58,12 +93,15 @@ const [hovered, setHovered] = useState<string | null>(null);
             >
               <Link
                 href={link.href}
-                className="text-white/90 hover:text-[#C2912E] font-semibold uppercase text-[11px] tracking-widest transition-all"
+                className={`font-bold uppercase text-[12px] tracking-widest transition-all ${
+                  scrolled
+                    ? "text-[#1E40AF] hover:text-[#64748B]"
+                    : "text-white hover:text-white/70"
+                }`}
               >
                 {link.name}
               </Link>
-
-              {/* OVID STYLE DROPDOWN */}
+              {/* DROPDOWN */}
               {link.subLinks && (
                 <AnimatePresence>
                   {hovered === link.name && (
@@ -71,15 +109,15 @@ const [hovered, setHovered] = useState<string | null>(null);
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 15 }}
-                      transition={{ duration: 0.25 }}
-                      className="absolute left-0 mt-6 w-60 bg-[#1c1c1c] shadow-2xl"
+                      transition={{ duration: 0.2 }}
+                      className="absolute left-0 mt-4 w-56 bg-white shadow-2xl border-t-4 border-[#1E40AF]"
                     >
-                      <div className="flex flex-col py-6 px-8 space-y-6">
+                      <div className="flex flex-col py-3">
                         {link.subLinks.map((sub) => (
                           <Link
                             key={sub.name}
                             href={sub.href}
-                            className="text-white/70 hover:text-white text-[11px] uppercase tracking-widest transition-colors"
+                            className="px-6 py-3 text-[#1E40AF] hover:bg-slate-50 text-[11px] font-bold uppercase tracking-widest transition-colors"
                           >
                             {sub.name}
                           </Link>
@@ -91,17 +129,17 @@ const [hovered, setHovered] = useState<string | null>(null);
               )}
             </div>
           ))}
+          
         </div>
-
         {/* MOBILE TOGGLE */}
         <button
-          className="lg:hidden text-white"
+          className={`${scrolled ? "text-[#1E40AF]" : "text-white"} lg:hidden`}
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
         >
           {isOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
       </div>
-
       {/* MOBILE MENU */}
       <AnimatePresence>
         {isOpen && (
@@ -109,8 +147,7 @@ const [hovered, setHovered] = useState<string | null>(null);
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="lg:hidden bg-[#0D2447] border-t border-white/10 overflow-hidden"
+            className="lg:hidden bg-white border-t border-slate-100 overflow-hidden shadow-2xl"
           >
             <div className="flex flex-col p-8 space-y-6">
               {navLinks.map((link) => (
@@ -118,19 +155,18 @@ const [hovered, setHovered] = useState<string | null>(null);
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="text-white text-base font-bold uppercase tracking-widest hover:text-[#C2912E]"
+                    className="text-[#1E40AF] text-base font-bold uppercase tracking-widest"
                   >
                     {link.name}
                   </Link>
-
                   {link.subLinks && (
-                    <div className="flex flex-col space-y-2 ml-4 border-l border-[#C2912E]/30 pl-4">
+                    <div className="flex flex-col space-y-3 ml-4 border-l-2 border-slate-200 pl-4">
                       {link.subLinks.map((sub) => (
                         <Link
                           key={sub.name}
                           href={sub.href}
                           onClick={() => setIsOpen(false)}
-                          className="text-white/50 text-xs font-bold uppercase tracking-widest hover:text-[#C2912E]"
+                          className="text-slate-500 text-xs font-bold uppercase tracking-widest hover:text-[#1E40AF]"
                         >
                           {sub.name}
                         </Link>
