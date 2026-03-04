@@ -138,7 +138,7 @@ export const ServicesContent = () => {
       {/* --- CTA SECTION --- */}
       <section className="py-20 bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-black uppercase text-[#1E40AF] mb-8">
+          <h2 className="text-4xl font-black  text-[#1E40AF] mb-8">
             Ready to start your <span className="text-[#15803d]">project?</span>
           </h2>
           <Link 

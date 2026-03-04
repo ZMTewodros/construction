@@ -32,7 +32,7 @@ const FooterLogo = () => (
       <span className="text-[#1E40AF] font-bold text-lg md:text-2xl -mt-1 tracking-tighter" style={{ fontFamily: 'Arial Black, sans-serif' }}>
         TIHUT ENGINEERING
       </span>
-      <span className="italic text-[#15803d] text-[11px] md:text-[13px] mt-1 font-serif">
+      <span className="italic text-[#15803d] text-[11px] md:text-[13px] mt-1 font-serif -ms-20">
         Engineering with humility
       </span>
     </span>
@@ -79,10 +79,10 @@ const Footer = () => {
             Expertise
           </h4>
           <ul className="space-y-4 text-orange-100 text-sm font-medium">
-            <li className="hover:text-white cursor-default">Residential Complexes</li>
-            <li className="hover:text-white cursor-default">Commercial Skyscrapers</li>
-            <li className="hover:text-white cursor-default">Industrial Facilities</li>
-            <li className="hover:text-white cursor-default">Infrastructure Development</li>
+            <li className="hover:text-white cursor-default">General Contractor</li>
+            <li className="hover:text-white cursor-default">Wholesale</li>
+            <li className="hover:text-white cursor-default">Landscape Architecture</li>
+            <li className="hover:text-white cursor-default">Finishing Work</li>
           </ul>
         </div>
 

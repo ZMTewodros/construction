@@ -43,6 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Projects', href: '/admin/projects', icon: Briefcase },
     { name: 'Testimonials', href: '/admin/testimonials', icon: Star },
+    { name: 'Team', href: '/admin/team', icon: Users }, // Added Team here
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   ];
 

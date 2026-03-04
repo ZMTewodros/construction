@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Trash2, Plus, X, Loader2, Edit3, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Plus, X, Loader2, Edit3, Image as ImageIcon, Search, CheckSquare, Check, AlertCircle, MapPin } from 'lucide-react';
 import Image from 'next/image';
+import imageCompression from 'browser-image-compression';
 
+// --- TYPES ---
 interface Project {
   id: string;
   title: string;
@@ -12,17 +14,38 @@ interface Project {
   category: string;
   location: string;
   timeline: string;
-  created_at?: string;
+  created_at: string;
 }
 
-const CATEGORIES = ["Residential", "Commercial", "Industrial", "Infrastructure"];
+const CATEGORIES = ["GC", "Wholesale", "Landscape", "Finishing", "Residential", "Commercial", "Industrial", "Infrastructure"];
+
+// --- COMPONENTS ---
+const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) => (
+  <div className="fixed top-6 right-6 z-[300] flex items-center gap-3 bg-[#0A192F] text-white px-6 py-4 rounded-2xl shadow-2xl border-2 border-white/10 animate-in slide-in-from-right-10">
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+      {type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
+    </div>
+    <p className="text-xs font-black uppercase tracking-widest">{message}</p>
+    <button onClick={onClose} className="ml-4 text-gray-400 hover:text-white transition-colors">
+      <X size={16} />
+    </button>
+  </div>
+);
 
 export default function ProjectPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+
+  // Filter, Search & Sort States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState(''); // NEW: Location search state
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+  
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  // Form States
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [category, setCategory] = useState('Commercial');
@@ -33,152 +56,262 @@ export default function ProjectPage() {
   
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => { fetchProjects(); }, []);
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  // UPDATED: Filter logic to include Location
+  const filteredProjects = useMemo(() => {
+    let result = [...projects];
+    
+    // Category Filter
+    if (activeFilter !== 'All') result = result.filter(p => p.category === activeFilter);
+    
+    // Title Search
+    if (searchQuery.trim() !== '') {
+      result = result.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+
+    // Location Search (NEW)
+    if (locationQuery.trim() !== '') {
+      result = result.filter(p => p.location.toLowerCase().includes(locationQuery.toLowerCase()));
+    }
+    
+    // Sorting
+    result.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+    return result;
+  }, [projects, activeFilter, searchQuery, locationQuery, sortBy]);
 
   async function fetchProjects() {
     setFetching(true);
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) console.error("Error fetching projects:", error);
-    else setProjects(data || []);
+    const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+    if (!error) setProjects(data || []);
     setFetching(false);
   }
 
+  const handleSelectAll = () => {
+    if (selectedIds.length === filteredProjects.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredProjects.map(p => p.id));
+    }
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  async function handleBulkDelete() {
+    if (!confirm(`Permanently delete ${selectedIds.length} projects?`)) return;
+    setLoading(true);
+    const { error } = await supabase.from('projects').delete().in('id', selectedIds);
+    if (!error) {
+      setToast({ message: "Projects deleted successfully", type: 'success' });
+      setSelectedIds([]);
+      setIsSelectMode(false);
+      fetchProjects();
+    } else {
+      setToast({ message: error.message, type: 'error' });
+    }
+    setLoading(false);
+  }
+
   const openAddModal = () => {
-    setEditingId(null);
-    setTitle('');
-    setDesc('');
-    setCategory('Commercial');
-    setLocation('');
-    setTimeline('');
-    setExistingUrls([]);
-    setFiles([]);
+    setEditingId(null); setTitle(''); setDesc(''); setCategory('Commercial'); setLocation(''); setTimeline(''); setExistingUrls([]); setFiles([]);
     setIsFormOpen(true);
   };
 
   const startEdit = (project: Project) => {
-    setEditingId(project.id);
-    setTitle(project.title);
-    setDesc(project.description);
-    setCategory(project.category || 'Commercial');
-    setLocation(project.location || '');
-    setTimeline(project.timeline || '');
-    setExistingUrls(project.image_urls || []);
-    setFiles([]);
+    setEditingId(project.id); setTitle(project.title); setDesc(project.description); setCategory(project.category || 'Commercial');
+    setLocation(project.location || ''); setTimeline(project.timeline || ''); setExistingUrls(project.image_urls || []); setFiles([]);
     setIsFormOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (files.length === 0 && existingUrls.length === 0) return alert("Please select an image.");
     setLoading(true);
-
     try {
       const newUploadedUrls = [];
+      const compressionOptions = { maxSizeMB: 0.8, maxWidthOrHeight: 1920, useWebWorker: true };
+
       for (const file of files) {
+        const compressedFile = await imageCompression(file, compressionOptions);
         const fileExt = file.name.split('.').pop();
         const path = `projects/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('assets').upload(path, file);
+        const { error: uploadError } = await supabase.storage.from('assets').upload(path, compressedFile);
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage.from('assets').getPublicUrl(path);
         newUploadedUrls.push(urlData.publicUrl);
       }
 
       const finalImageUrls = [...existingUrls, ...newUploadedUrls];
-      const projectData = { 
-        title, 
-        description: desc, 
-        image_urls: finalImageUrls,
-        category,
-        location,
-        timeline
-      };
-
+      const projectData = { title, description: desc, image_urls: finalImageUrls, category, location, timeline };
+      
+      let error;
       if (editingId) {
-        await supabase.from('projects').update(projectData).eq('id', editingId);
+        const { error: updateError } = await supabase.from('projects').update(projectData).eq('id', editingId);
+        error = updateError;
       } else {
-        await supabase.from('projects').insert([projectData]);
+        const { error: insertError } = await supabase.from('projects').insert([projectData]);
+        error = insertError;
       }
 
+      if (error) throw error;
+      setToast({ message: `Project ${editingId ? 'updated' : 'published'} successfully!`, type: 'success' });
       setIsFormOpen(false);
       fetchProjects();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      alert(error.message);
+    } catch (err: any) {
+      setToast({ message: err.message, type: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
-  async function deleteProject(id: string) {
-    if (!confirm("Are you sure you want to delete this project?")) return;
-    const { error } = await supabase.from('projects').delete().eq('id', id);
-    if (!error) fetchProjects();
-  }
-
   return (
-    <div className="min-h-screen bg-[#F8F9FD] p-4 lg:p-8 lg:ml-64 font-sans">
-      {/* HEADER */}
-      <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[#0A192F] uppercase tracking-tight">Project Library</h1>
-          <p className="text-gray-400 text-sm font-medium">Manage and showcase your architectural excellence</p>
-        </div>
-        <button onClick={openAddModal} className="flex items-center justify-center gap-2 bg-[#2563EB] text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg hover:bg-[#1D4ED8] active:scale-95">
-          <Plus size={20} /> Add New Project
-        </button>
+    <div className="min-h-screen bg-[#F8F9FD] p-4 lg:p-8 lg:ml-64 font-sans relative">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      <div className="max-w-7xl mx-auto mb-8">
+        <h1 className="text-3xl font-black text-[#0A192F] uppercase tracking-tight">Project Library</h1>
+        <p className="text-gray-400 text-sm font-medium uppercase tracking-widest">Portfolio Control Center</p>
       </div>
 
-      {/* GRID - Optimized spacing and card size */}
-      <div className="max-w-7xl mx-auto">
+      {/* STICKY ACTION BAR - UPDATED WITH LOCATION SEARCH */}
+      <div className="sticky top-4 z-[100] max-w-7xl mx-auto mb-10 space-y-4">
+        <div className="bg-white p-2 rounded-2xl shadow-xl border-2 border-gray-200 flex flex-col xl:flex-row gap-2">
+          
+          {/* Title Search */}
+          <div className="relative flex-grow">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search by Title..." 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              className="w-full pl-12 pr-4 py-3 bg-transparent outline-none font-bold text-xs uppercase tracking-tight text-[#0A192F]" 
+            />
+          </div>
+
+          <div className="hidden xl:block w-[2px] bg-gray-100 my-2"></div>
+
+          {/* Location Search (NEW) */}
+          <div className="relative flex-grow">
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" size={18} />
+            <input 
+              type="text" 
+              placeholder="Filter by Location..." 
+              value={locationQuery} 
+              onChange={(e) => setLocationQuery(e.target.value)} 
+              className="w-full pl-12 pr-4 py-3 bg-transparent outline-none font-bold text-xs uppercase tracking-tight text-[#0A192F]" 
+            />
+          </div>
+
+          <div className="hidden xl:block w-[2px] bg-gray-100 my-2"></div>
+
+          <div className="flex divide-x-2 divide-gray-100">
+            <select value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className="bg-transparent px-4 py-3 font-black text-[10px] uppercase tracking-widest text-[#1E40AF] outline-none cursor-pointer">
+              <option value="All">All Categories</option>
+              {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')} className="bg-transparent px-4 py-3 font-black text-[10px] uppercase tracking-widest text-slate-500 outline-none cursor-pointer">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {!isSelectMode && (
+            <button onClick={openAddModal} className="flex items-center gap-2 bg-[#1E40AF] text-white px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-blue-700 transition-all active:scale-95 border-b-4 border-blue-900">
+              <Plus size={18} /> Add Project
+            </button>
+          )}
+          <button onClick={() => { setIsSelectMode(!isSelectMode); setSelectedIds([]); }} className={`px-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 border-2 ${isSelectMode ? 'bg-amber-50 border-amber-400 text-amber-700' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'}`}>
+            {isSelectMode ? <X size={16}/> : <CheckSquare size={16}/>}
+            {isSelectMode ? 'Cancel' : 'Bulk Select'}
+          </button>
+        </div>
+      </div>
+
+      {/* SELECT ALL AREA */}
+      {isSelectMode && filteredProjects.length > 0 && (
+        <div className="max-w-7xl mx-auto mb-6 flex items-center gap-3 px-4 py-3 bg-blue-50/50 rounded-xl border border-blue-100">
+          <button onClick={handleSelectAll} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-700">
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedIds.length === filteredProjects.length ? 'bg-[#1E40AF] border-[#1E40AF]' : 'bg-white border-blue-300'}`}>
+              {selectedIds.length === filteredProjects.length && <Check size={14} className="text-white" />}
+            </div>
+            Select All Visible ({filteredProjects.length})
+          </button>
+        </div>
+      )}
+
+      {/* PROJECT GRID */}
+      <div className="max-w-7xl mx-auto pb-32">
         {fetching ? (
           <div className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-blue-600" size={40} /></div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="py-32 text-center border-4 border-dashed border-gray-200 rounded-[40px] bg-white/50">
+            <ImageIcon className="mx-auto text-gray-200 mb-4" size={64} />
+            <p className="text-gray-400 font-black uppercase text-xs tracking-[0.2em]">No matches found</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {projects.map((proj) => (
-              <div key={proj.id} className="bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
-                
-                {/* Image Section - Height increased for better visibility */}
-                <div className="relative h-60 w-full overflow-hidden bg-gray-100">
+            {filteredProjects.map((proj) => (
+              <div 
+                key={proj.id} 
+                onClick={() => isSelectMode && toggleSelection(proj.id)}
+                className={`bg-white rounded-[32px] overflow-hidden border-2 flex flex-col group transition-all duration-500 relative 
+                  ${isSelectMode ? 'cursor-pointer' : ''} 
+                  ${selectedIds.includes(proj.id) ? 'border-blue-600 ring-8 ring-blue-50 shadow-2xl scale-[0.98]' : 'border-gray-100 hover:border-blue-200 shadow-sm hover:shadow-xl'}`}
+              >
+                <div className="relative h-72 w-full overflow-hidden bg-gray-50">
                   {proj.image_urls?.[0] ? (
-                    <Image 
-                      src={proj.image_urls[0]} 
-                      alt={proj.title} 
-                      fill 
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
-                    />
+                    <Image src={proj.image_urls[0]} alt={proj.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300"><ImageIcon size={48} /></div>
+                    <div className="w-full h-full flex items-center justify-center text-gray-200"><ImageIcon size={48} /></div>
                   )}
                   
-                  {/* Category Overlay */}
-                  <div className="absolute top-4 left-4 bg-[#0A192F]/90 backdrop-blur-md text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.15em] shadow-xl">
+                  <div className="absolute top-6 left-6 bg-white text-[#0A192F] px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.15em] shadow-lg z-10 border border-gray-100">
                     {proj.category}
                   </div>
 
-                  {/* Quick Action Overlay */}
-                  <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button onClick={() => startEdit(proj)} className="p-2.5 bg-white/90 backdrop-blur-md text-blue-600 hover:bg-blue-600 hover:text-white rounded-full shadow-lg transition-all"><Edit3 size={18} /></button>
-                    <button onClick={() => deleteProject(proj.id)} className="p-2.5 bg-white/90 backdrop-blur-md text-red-600 hover:bg-red-600 hover:text-white rounded-full shadow-lg transition-all"><Trash2 size={18} /></button>
-                  </div>
+                  {isSelectMode && (
+                    <div className="absolute inset-0 bg-blue-600/20 backdrop-blur-[2px] flex items-start justify-end p-6 z-20">
+                        <div className={`w-10 h-10 rounded-full border-4 flex items-center justify-center shadow-2xl transition-all ${selectedIds.includes(proj.id) ? 'bg-blue-600 border-white rotate-0' : 'bg-white border-gray-200 rotate-45'}`}>
+                          {selectedIds.includes(proj.id) && <Check size={20} className="text-white" />}
+                        </div>
+                    </div>
+                  )}
+
+                  {!isSelectMode && (
+                    <div className="absolute bottom-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 z-20">
+                      <button onClick={(e) => { e.stopPropagation(); startEdit(proj); }} className="p-4 bg-white text-blue-600 rounded-2xl shadow-2xl hover:bg-blue-600 hover:text-white transition-all"><Edit3 size={20} /></button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Content Section - Increased text size */}
-                <div className="p-6 flex flex-col flex-grow bg-white">
-                  <h3 className="font-black text-[#0A192F] text-xl uppercase tracking-tight mb-3 truncate group-hover:text-blue-600 transition-colors">
-                    {proj.title}
-                  </h3>
-                  
-                  <p className="text-gray-500 text-sm italic leading-relaxed line-clamp-3">
-                    &quot;{proj.description}&quot;
-                  </p>
+                <div className="p-8">
+                  <h3 className="font-black text-[#0A192F] text-xl uppercase tracking-tighter mb-4 truncate">{proj.title}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 flex items-center gap-1.5">
+                      <MapPin size={12} /> {proj.location}
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                      ⏱️ {proj.timeline}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -186,70 +319,82 @@ export default function ProjectPage() {
         )}
       </div>
 
-      {/* MODAL - Architectural Form */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#0A192F]/70 backdrop-blur-md" onClick={() => setIsFormOpen(false)} />
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-            <div className="p-6 border-b flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-xl font-black text-[#0A192F] uppercase tracking-widest">{editingId ? "Update Project" : "New Project Section"}</h2>
-              <button onClick={() => setIsFormOpen(false)} className="p-2 hover:bg-gray-200 rounded-full transition-colors"><X size={24} /></button>
+      {/* BULK DELETE PANEL */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[110] bg-[#0A192F] text-white px-10 py-6 rounded-[30px] shadow-[0_20px_50px_rgba(0,0,0,0.4)] flex items-center gap-8 border-2 border-white/10 animate-in fade-in slide-in-from-bottom-10">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400">Batch Control</span>
+              <span className="text-sm font-bold">{selectedIds.length} Projects Selected</span>
             </div>
+            <div className="h-10 w-[1px] bg-white/10"></div>
+            <button 
+                onClick={handleBulkDelete}
+                disabled={loading}
+                className="flex items-center gap-2 text-red-400 hover:text-red-300 font-black uppercase text-xs tracking-widest transition-colors disabled:opacity-50"
+            >
+                {loading ? <Loader2 className="animate-spin" size={18}/> : <Trash2 size={18}/>}
+                Delete Permanently
+            </button>
+        </div>
+      )}
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto max-h-[80vh]">
-              <div>
-                <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest block mb-2">Project Name</label>
-                <input required value={title} onChange={e => setTitle(e.target.value)} className="w-full p-4 bg-gray-50 rounded-xl border-2 border-transparent focus:border-blue-500 focus:bg-white outline-none transition-all font-medium" placeholder="e.g. LUXURY APARTMENT COMPLEX" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest block mb-2">Category</label>
-                  <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-4 bg-gray-50 rounded-xl border-2 border-transparent focus:border-blue-500 outline-none appearance-none font-medium">
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest block mb-2">Site Location</label>
-                  <input required value={location} onChange={e => setLocation(e.target.value)} className="w-full p-4 bg-gray-50 rounded-xl border-2 border-transparent focus:border-blue-500 outline-none font-medium" placeholder="e.g. Addis Ababa" />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest block mb-2">Execution Period</label>
-                <input required value={timeline} onChange={e => setTimeline(e.target.value)} className="w-full p-4 bg-gray-50 rounded-xl border-2 border-transparent focus:border-blue-500 outline-none font-medium" placeholder="e.g. 24 Months" />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest block mb-2">Project Details</label>
-                <textarea required value={desc} onChange={e => setDesc(e.target.value)} rows={3} className="w-full p-4 bg-gray-50 rounded-xl border-2 border-transparent focus:border-blue-500 outline-none resize-none font-medium" placeholder="Describe the design language and technical scope..." />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest block mb-3">Project Images</label>
-                <div className="flex flex-wrap gap-4">
-                  {existingUrls.map((url, i) => (
-                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
-                      <Image src={url} alt="Gallery" fill className="object-cover opacity-60" />
-                      <button type="button" onClick={() => setExistingUrls(existingUrls.filter(u => u !== url))} className="absolute inset-0 flex items-center justify-center bg-red-600/40 text-white opacity-0 hover:opacity-100 transition-opacity"><Trash2 size={20} /></button>
+      {/* MODAL FORM */}
+      {isFormOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-[#0A192F]/90 backdrop-blur-md" onClick={() => setIsFormOpen(false)} />
+          <div className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden border-2 border-gray-100">
+            <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-2xl font-black text-[#0A192F] uppercase tracking-tighter">{editingId ? "Update Project" : "New Portfolio Piece"}</h2>
+              <button onClick={() => setIsFormOpen(false)} className="p-3 hover:bg-gray-200 rounded-full transition-colors text-gray-400"><X size={28} /></button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-10 space-y-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-2 block">Project Title</label>
+                      <input required value={title} onChange={e => setTitle(e.target.value)} className="w-full p-5 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white outline-none transition-all font-bold" />
                     </div>
-                  ))}
-                  {files.map((file, i) => (
-                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-blue-500 shadow-md">
-                      <Image src={URL.createObjectURL(file)} alt="New" fill className="object-cover" />
-                      <button type="button" onClick={() => setFiles(files.filter((_, idx) => idx !== i))} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-lg"><X size={14}/></button>
+                    <div>
+                      <label className="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-2 block">Category</label>
+                      <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-5 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-600 focus:bg-white font-bold appearance-none">
+                          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
                     </div>
-                  ))}
-                  <label className="w-20 h-20 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
-                    <Plus size={24} />
-                    <input type="file" multiple className="hidden" onChange={e => e.target.files && setFiles([...files, ...Array.from(e.target.files)])} accept="image/*" />
-                  </label>
+                    <div>
+                      <label className="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-2 block">Location</label>
+                      <input required value={location} onChange={e => setLocation(e.target.value)} className="w-full p-5 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white outline-none font-bold" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-2 block">Timeline</label>
+                      <input required value={timeline} onChange={e => setTimeline(e.target.value)} placeholder="e.g. 2024 - 2026" className="w-full p-5 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white outline-none font-bold" />
+                    </div>
                 </div>
-              </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-2 block">Description</label>
+                  <textarea required value={desc} onChange={e => setDesc(e.target.value)} rows={4} className="w-full p-5 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white resize-none outline-none font-medium" />
+                </div>
+                
+                <div>
+                  <label className="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-4 block">Visual Media</label>
+                  <div className="flex flex-wrap gap-4">
+                      {existingUrls.map((url, i) => (
+                          <div key={i} className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-gray-100 group">
+                              <Image src={url} alt="existing" fill className="object-cover" />
+                              <button type="button" onClick={() => setExistingUrls(existingUrls.filter(u => u !== url))} className="absolute inset-0 flex items-center justify-center bg-red-600/90 text-white opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={28}/></button>
+                          </div>
+                      ))}
+                      
+                      <label className="w-28 h-28 border-4 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center text-gray-300 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50 cursor-pointer transition-all gap-1">
+                          <ImageIcon size={32} />
+                          <span className="text-[8px] font-black uppercase tracking-tighter">Add Photo</span>
+                          <input type="file" multiple className="hidden" onChange={e => e.target.files && setFiles([...files, ...Array.from(e.target.files)])} accept="image/*" />
+                      </label>
+                  </div>
+                  {files.length > 0 && <p className="mt-4 text-[10px] font-black text-green-600 uppercase tracking-widest flex items-center gap-2"><Check size={14}/> {files.length} New files staged for optimization</p>}
+                </div>
 
-              <button disabled={loading} className="w-full bg-[#0A192F] text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-blue-600 transition-all disabled:opacity-50 shadow-2xl shadow-blue-900/20">
-                {loading ? <Loader2 className="animate-spin mx-auto" size={24} /> : (editingId ? "Save Changes" : "Publish Project")}
-              </button>
+                <button disabled={loading} className="w-full bg-[#0A192F] text-white py-6 rounded-[24px] font-black uppercase tracking-[0.2em] text-xs hover:bg-blue-600 shadow-2xl transition-all disabled:opacity-50 active:scale-95">
+                    {loading ? <Loader2 className="animate-spin mx-auto" size={24} /> : (editingId ? "Save Changes" : "Publish Project")}
+                </button>
             </form>
           </div>
         </div>

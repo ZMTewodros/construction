@@ -9,7 +9,7 @@ export const ContactContent = () => {
     name: '',
     email: '',
     phone: '',
-    projectType: 'Residential',
+    projectType: 'Landscape',
     location: '',
     message: ''
   });
