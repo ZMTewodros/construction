@@ -76,7 +76,7 @@ export const ContactContent = () => {
 
               <div className="space-y-8">
                 {[
-                  { icon: MapPin, title: "Our Location", detail: "Megenagna, Metebaber Building, 4th Floor\nAddis Ababa, Ethiopia" },
+                  { icon: MapPin, title: "Our Location", detail: "4 kilo, back of ambassador ,Iklhas Building, 3rd Floor,house number:304 \nAddis Ababa, Ethiopia" },
                   { icon: Phone, title: "Call Us", detail: "+251 966 858 982" },
                   { icon: Mail, title: "Email Us", detail: "Tihutengineering@Gmail.Com" },
                   { icon: Clock, title: "Working Hours", detail: "Mon - Fri: 8:00 AM - 6:00 PM" }
