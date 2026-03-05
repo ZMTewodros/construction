@@ -11,7 +11,9 @@ import {
   LogOut, 
   LayoutDashboard, 
   Loader2,
-  Hammer // Icon for Services
+  Hammer,
+  Handshake,
+  Settings // NEW ICON
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -23,16 +25,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     const checkRole = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { 
-        router.push('/login'); 
-        return; 
-      }
+      if (!user) { router.push('/login'); return; }
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+      const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
 
       if (!data || (data.role !== 'admin' && data.role !== 'super_admin')) {
         await supabase.auth.signOut();
@@ -50,7 +45,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.push('/login');
   };
 
-  // Improved loading state
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-4">
@@ -60,20 +54,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 
-  // Updated Navigation Items
+  // ADDED 'Settings' TO THIS LIST
   const navItems = [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Projects', href: '/admin/projects', icon: Briefcase },
-    { name: 'Services', href: '/admin/manage-services', icon: Hammer }, // NEW ITEM
+    { name: 'Services', href: '/admin/manage-services', icon: Hammer },
+    { name: 'Partners', href: '/admin/partners', icon: Handshake },
     { name: 'Testimonials', href: '/admin/testimonials', icon: Star },
     { name: 'Team', href: '/admin/team', icon: Users },
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
+    { name: 'Settings', href: '/admin/settings', icon: Settings }, // NEW SETTINGS LINK
   ];
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* SIDEBAR */}
-      <aside className="w-64 bg-[#0A192F] text-white flex flex-col fixed h-full z-50">
+      <aside className="w-64 bg-[#0A192F] text-white flex flex-col fixed h-full z-50 shadow-2xl">
         <div className="p-6 border-b border-slate-800">
           <Link href="/">
             <h1 className="text-xl font-black text-[#F59E0B] tracking-tighter hover:opacity-80 transition-opacity">
@@ -85,56 +81,53 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 mt-4 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-1 mt-4 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link 
                 key={item.href} 
                 href={item.href} 
-                className={`flex items-center gap-3 px-4 py-3 rounded-sm transition-all text-xs font-bold uppercase tracking-widest ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-md transition-all text-[11px] font-bold uppercase tracking-widest group ${
                   isActive 
-                    ? 'bg-[#F59E0B] text-[#0A192F]' 
-                    : 'hover:bg-slate-800 text-slate-300'
+                    ? 'bg-[#F59E0B] text-[#0A192F] shadow-lg shadow-orange-500/20' 
+                    : 'hover:bg-slate-800/50 text-slate-400 hover:text-white'
                 }`}
               >
-                <item.icon size={18} /> {item.name}
+                <item.icon size={18} className={`${isActive ? 'text-[#0A192F]' : 'text-slate-500 group-hover:text-[#F59E0B]'}`} /> 
+                {item.name}
               </Link>
             );
           })}
-
-          {/* Super Admin Section */}
-          {role === 'super_admin' && (
-            <div className="pt-6 mt-6 border-t border-slate-800">
-              <Link 
-                href="/admin/users" 
-                className={`flex items-center gap-3 px-4 py-3 rounded-sm transition-all text-xs font-bold uppercase tracking-widest ${
-                  pathname === '/admin/users' 
-                    ? 'bg-red-600 text-white' 
-                    : 'text-red-400 hover:bg-red-900/10'
-                }`}
-              >
-                <Users size={18} /> Manage Users
-              </Link>
-            </div>
-          )}
         </nav>
 
-        {/* LOGOUT */}
+        {/* SIGN OUT SECTION */}
         <div className="p-4 border-t border-slate-800">
           <button 
             onClick={handleLogout} 
-            className="flex items-center gap-3 px-4 py-3 w-full text-left text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-colors"
+            className="flex items-center gap-3 px-4 py-3 w-full text-left text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-red-400 transition-colors group"
           >
-            <LogOut size={18} /> Sign Out
+            <LogOut size={18} className="group-hover:translate-x-1 transition-transform" /> 
+            Sign Out
           </button>
         </div>
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 ml-64 min-h-screen relative">
-        {/* You can add a top-bar here if needed */}
-        <div className="p-8 lg:p-12">
+      <main className="flex-1 ml-64 min-h-screen bg-slate-50">
+        {/* Header Strip for Admin */}
+        <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-40 flex items-center justify-between px-8">
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">
+                {navItems.find(item => item.href === pathname)?.name || 'Dashboard'}
+            </h2>
+            <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-[#F59E0B] flex items-center justify-center text-[#0A192F] font-bold text-xs">
+                    {role?.[0].toUpperCase()}
+                </div>
+            </div>
+        </header>
+
+        <div className="p-8 lg:p-10 max-w-6xl">
           {children}
         </div>
       </main>

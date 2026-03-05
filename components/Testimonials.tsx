@@ -24,6 +24,7 @@ export const Testimonials = () => {
   useEffect(() => {
     async function fetchTestimonials() {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('testimonials')
           .select('*')
@@ -31,8 +32,13 @@ export const Testimonials = () => {
 
         if (error) throw error;
         if (data) setList(data);
-      } catch (err) {
-        console.error("Error fetching testimonials:", err);
+      } catch (err: unknown) {
+        // Updated to show real error messages like "JWT Expired" or "RLS Policy Violation"
+        if (err instanceof Error) {
+          console.error("Error fetching testimonials:", err.message);
+        } else {
+          console.error("Error fetching testimonials:", err);
+        }
       } finally {
         setLoading(false);
       }
@@ -60,7 +66,6 @@ export const Testimonials = () => {
 
   return (
     <section className="py-20 bg-white overflow-hidden relative">
-      {/* Subtle Background Pattern using Logo Blue */}
       <div 
         className="absolute inset-0 opacity-[0.02] pointer-events-none" 
         style={{ 
@@ -90,7 +95,6 @@ export const Testimonials = () => {
               transition={{ duration: 0.4 }}
               className="bg-[#1E40AF] p-8 md:p-12 relative rounded-2xl shadow-2xl"
             >
-              {/* Quote icon using Logo Green for accent */}
               <Quote className="absolute top-6 left-6 text-[#15803d]/20" size={60} />
               
               <div className="relative z-10">
@@ -109,7 +113,6 @@ export const Testimonials = () => {
                 </p>
 
                 <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-8 border-t border-white/10 pt-10">
-                  {/* Avatar with Logo Green Border */}
                   <div className="relative w-28 h-28 md:w-32 md:h-32 shrink-0 overflow-hidden rounded-full border-4 border-[#15803d] shadow-lg bg-blue-900">
                     {list[index].image_url ? (
                       <Image
@@ -119,6 +122,7 @@ export const Testimonials = () => {
                         sizes="(max-width: 768px) 112px, 128px"
                         priority
                         className="object-cover object-center"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -140,7 +144,6 @@ export const Testimonials = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Dots using Logo Blue and Light Grey */}
           {list.length > 1 && (
             <div className="flex justify-center mt-8 space-x-3">
               {list.map((_, i) => (

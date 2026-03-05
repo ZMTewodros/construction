@@ -2,14 +2,12 @@
 
 import React from 'react';
 import { Award, Users, Target, History, Shield } from 'lucide-react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 export default function About() {
   return (
     <div className="pt-20 bg-white">
       {/* --- HEADER SECTION --- */}
-      {/* Grid removed for a clean, solid white professional look */}
       <section className="relative py-24 overflow-hidden bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div 
@@ -27,49 +25,53 @@ export default function About() {
         </div>
       </section>
 
-      {/* --- MISSION & VISION SECTION --- */}
+      {/* --- WHO WE ARE & MISSION/VISION SECTION --- */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h2 className="text-4xl font-black uppercase text-[#1E40AF]">
-                  Who We <span className="text-[#15803d]">Are</span>
-                </h2>
-                <p className="text-slate-600 leading-relaxed font-medium">
-                  Tihut Engineering is a premier engineering and construction firm based in Addis Ababa. We are dedicated to transforming the Ethiopian landscape through infrastructure that balances modern innovation with traditional integrity.
-                </p>
-                <p className="text-slate-600 leading-relaxed">
-                  Our success is built on a foundation of humility, safety, and a relentless pursuit of quality. We don&apos;t just build structures; we build the future of our communities with precision and care.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="p-6 bg-white shadow-xl border-t-4 border-[#15803d] rounded-sm">
-                  <Target className="text-[#1E40AF] mb-4" size={32} />
-                  <h4 className="font-black uppercase text-[#1E40AF] mb-2">Our Mission</h4>
-                  <p className="text-sm text-slate-500 font-medium">To deliver superior construction services through innovation, humility, and sustainable engineering practices.</p>
-                </div>
-                <div className="p-6 bg-white shadow-xl border-t-4 border-[#1E40AF] rounded-sm">
-                  <Award className="text-[#15803d] mb-4" size={32} />
-                  <h4 className="font-black uppercase text-[#1E40AF] mb-2">Our Vision</h4>
-                  <p className="text-sm text-slate-500 font-medium">To be the most trusted construction partner in Ethiopia, recognized for excellence, reliability, and character.</p>
-                </div>
-              </div>
+          <div className="flex flex-col space-y-16">
+            
+            {/* Top Text Content */}
+            <div className="max-w-4xl space-y-6">
+              <h2 className="text-4xl font-black uppercase text-[#1E40AF]">
+                Who We <span className="text-[#15803d]">Are</span>
+              </h2>
+              <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                Tihut Engineering is a premier engineering and construction firm based in Addis Ababa. We are dedicated to transforming the Ethiopian landscape through infrastructure that balances modern innovation with traditional integrity.
+              </p>
+              <p className="text-slate-600 text-lg leading-relaxed">
+                Our success is built on a foundation of humility, safety, and a relentless pursuit of quality. We don&apos;t just build structures; we build the future of our communities with precision and care.
+              </p>
             </div>
 
-            <div className="relative">
-              {/* Decorative Frame using Logo Green */}
-              <div className="absolute -top-4 -right-4 w-full h-full border-2 border-[#15803d] z-0 hidden md:block"></div>
-              <div className="relative z-10 overflow-hidden shadow-2xl rounded-sm aspect-[4/3]">
-                <Image
-                  src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1000" 
-                  alt="Tihut Engineering Construction Team" 
-                  fill
-                  className="hover:scale-105 transition-transform duration-700 object-cover"
-                />
-              </div>
+            {/* Mission & Vision Grid - Expanded to fill the space left by the image */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="p-10 bg-white shadow-2xl border-t-8 border-[#15803d] rounded-sm flex flex-col items-start"
+              >
+                <div className="w-16 h-16 bg-[#15803d]/10 rounded-full flex items-center justify-center mb-6">
+                  <Target className="text-[#15803d]" size={40} />
+                </div>
+                <h4 className="text-2xl font-black uppercase text-[#1E40AF] mb-4">Our Mission</h4>
+                <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                  To deliver superior construction services through innovation, humility, and sustainable engineering practices that empower the growth of Ethiopia.
+                </p>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="p-10 bg-white shadow-2xl border-t-8 border-[#1E40AF] rounded-sm flex flex-col items-start"
+              >
+                <div className="w-16 h-16 bg-[#1E40AF]/10 rounded-full flex items-center justify-center mb-6">
+                  <Award className="text-[#1E40AF]" size={40} />
+                </div>
+                <h4 className="text-2xl font-black uppercase text-[#1E40AF] mb-4">Our Vision</h4>
+                <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                  To be the most trusted construction partner in Ethiopia, recognized globally for excellence, reliability, and the character of our work.
+                </p>
+              </motion.div>
             </div>
+
           </div>
         </div>
       </section>
