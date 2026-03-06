@@ -13,7 +13,7 @@ const navLinks = [
     subLinks: [
       { name: "Company Profile", href: "/about" },
       { name: "Our Team", href: "/about/team" },
-      { name: "Our Partners", href: "/about/partners" },
+      { name: "Our Clients & Partners", href: "/about/partners" },
       { name: "HSE Policy", href: "/about/hse" },
       { name: "CSR Initiatives", href: "/about/csr" }
     ]

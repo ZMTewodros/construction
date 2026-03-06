@@ -46,17 +46,19 @@ export default function AdminPartners() {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `logos/${fileName}`;
 
+      // Upload file to bucket
       const { error: uploadError } = await supabase.storage
         .from('partner-logos')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
+      // Get the URL
       const { data: { publicUrl } } = supabase.storage
         .from('partner-logos')
         .getPublicUrl(filePath);
 
-      // Insert ONLY the logo_url (Name removed)
+      // Insert ONLY the logo_url into the database
       const { error: dbError } = await supabase
         .from('partners')
         .insert([{ logo_url: publicUrl }]);
@@ -76,12 +78,12 @@ export default function AdminPartners() {
     if (!confirm("Are you sure you want to delete this logo?")) return;
 
     try {
-      // Extract the filename from the URL to delete from storage
-      const urlParts = logoUrl.split('/');
-      const fileName = urlParts[urlParts.length - 1];
-      const filePath = `logos/${fileName}`;
-
-      await supabase.storage.from('partner-logos').remove([filePath]);
+      // Extract the filename from the end of the URL
+      const fileName = logoUrl.split('/').pop();
+      if (fileName) {
+        await supabase.storage.from('partner-logos').remove([`logos/${fileName}`]);
+      }
+      
       await supabase.from('partners').delete().eq('id', id);
       fetchPartners();
     } catch (error) {
@@ -112,7 +114,14 @@ export default function AdminPartners() {
               />
               {previewUrl ? (
                 <div className="relative py-2 flex flex-col items-center">
-                  <Image src={previewUrl} alt="Preview" className="h-32 w-auto object-contain mb-4" />
+                  <Image 
+                    src={previewUrl} 
+                    alt="Preview" 
+                    width={200} 
+                    height={128} 
+                    className="h-32 w-auto object-contain mb-4" 
+                    unoptimized
+                  />
                   <p className="text-[10px] text-[#15803D] font-black uppercase">Click to change</p>
                 </div>
               ) : (
@@ -147,7 +156,7 @@ export default function AdminPartners() {
                   <div className="relative w-full h-24">
                     <Image 
                       src={p.logo_url} 
-                      alt="Partner" 
+                      alt="Partner Logo" 
                       fill
                       className="object-contain"
                       unoptimized

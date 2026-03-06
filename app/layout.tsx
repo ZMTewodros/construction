@@ -13,7 +13,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      {/* suppressHydrationWarning={true} prevents errors caused by 
+          browser extensions injecting attributes into the body tag.
+      */}
+      <body suppressHydrationWarning={true}>
+        {children}
+      </body>
     </html>
   );
 }
