@@ -15,7 +15,7 @@ export default function About() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl md:text-6xl text-[#1E40AF] font-black uppercase mb-6">
+            <h1 className="text-5xl md:text-6xl text-[#1E40AF] font-black  mb-6">
               Our <span className="text-[#15803d]">Story</span>
             </h1>
             <p className="text-xl text-slate-500 max-w-2xl font-medium leading-relaxed">
@@ -32,15 +32,16 @@ export default function About() {
             
             {/* Top Text Content */}
             <div className="max-w-4xl space-y-6">
-              <h2 className="text-4xl font-black uppercase text-[#1E40AF]">
+              <h2 className="text-4xl font-black  text-[#1E40AF]">
                 Who We <span className="text-[#15803d]">Are</span>
               </h2>
               <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                Tihut Engineering is a premier engineering and construction firm based in Addis Ababa. We are dedicated to transforming the Ethiopian landscape through infrastructure that balances modern innovation with traditional integrity.
-              </p>
-              <p className="text-slate-600 text-lg leading-relaxed">
-                Our success is built on a foundation of humility, safety, and a relentless pursuit of quality. We don&apos;t just build structures; we build the future of our communities with precision and care.
-              </p>
+Tihut Engineering is a premier engineering and construction firm based in Addis Ababa, founded in 2014 with a commitment to humility and quality.
+
+As a certified Grade-5 General Contractor, we possess the technical depth and equipment resources required to manage complex infrastructure projects. Our decade-long journey in the Ethiopian market has allowed us to refine our processes, ensuring that innovation never comes at the cost of traditional integrity.
+
+Our success is built on a foundation of safety and a relentless pursuit of engineering perfection. We don&apos;t just build structures; we build the future of our communities with precision and care.              </p>
+              
             </div>
 
             {/* Mission & Vision Grid - Expanded to fill the space left by the image */}
@@ -52,10 +53,9 @@ export default function About() {
                 <div className="w-16 h-16 bg-[#15803d]/10 rounded-full flex items-center justify-center mb-6">
                   <Target className="text-[#15803d]" size={40} />
                 </div>
-                <h4 className="text-2xl font-black uppercase text-[#1E40AF] mb-4">Our Mission</h4>
+                <h4 className="text-2xl font-black  text-[#1E40AF] mb-4">Our Mission</h4>
                 <p className="text-slate-500 text-lg font-medium leading-relaxed">
-                  To deliver superior construction services through innovation, humility, and sustainable engineering practices that empower the growth of Ethiopia.
-                </p>
+To deliver superior construction services through innovation, humility, and sustainable engineering practices that empower the growth of Ethiopia, while fostering community development, ensuring safety, and creating lasting value for our clients and stakeholders.                </p>
               </motion.div>
 
               <motion.div 
@@ -65,10 +65,9 @@ export default function About() {
                 <div className="w-16 h-16 bg-[#1E40AF]/10 rounded-full flex items-center justify-center mb-6">
                   <Award className="text-[#1E40AF]" size={40} />
                 </div>
-                <h4 className="text-2xl font-black uppercase text-[#1E40AF] mb-4">Our Vision</h4>
+                <h4 className="text-2xl font-black  text-[#1E40AF] mb-4">Our Vision</h4>
                 <p className="text-slate-500 text-lg font-medium leading-relaxed">
-                  To be the most trusted construction partner in Ethiopia, recognized globally for excellence, reliability, and the character of our work.
-                </p>
+To be the most trusted construction partner in Ethiopia, recognized globally for excellence, reliability, and the character of our work, driving transformative infrastructure that shapes a brighter and more sustainable future.                </p>
               </motion.div>
             </div>
 
@@ -80,7 +79,7 @@ export default function About() {
       <section className="py-24 bg-slate-50/50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black uppercase text-[#1E40AF] mb-4">Our Core Values</h2>
+            <h2 className="text-4xl font-black  text-[#1E40AF] mb-4">Our Core Values</h2>
             <div className="h-1.5 w-24 bg-[#15803d] mx-auto"></div>
           </div>
 
@@ -95,7 +94,7 @@ export default function About() {
                 <div className="w-16 h-16 bg-[#1E40AF]/5 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-[#1E40AF] transition-colors">
                   <value.icon className="text-[#1E40AF] group-hover:text-white transition-colors" size={28} />
                 </div>
-                <h4 className="font-black uppercase text-[#1E40AF] mb-3">{value.title}</h4>
+                <h4 className="font-black  text-[#1E40AF] mb-3">{value.title}</h4>
                 <p className="text-sm text-slate-500 font-medium leading-relaxed">{value.desc}</p>
               </div>
             ))}

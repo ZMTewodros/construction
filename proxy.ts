@@ -1,13 +1,8 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-/**
- * Next.js 16 Proxy Function
- * This replaces the previous 'middleware' convention.
- * It ensures the Supabase session is refreshed on every request.
- */
+// CHANGE THIS LINE: from "middleware" to "proxy"
 export async function proxy(request: NextRequest) {
-  // Create an unmodified response
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -23,22 +18,16 @@ export async function proxy(request: NextRequest) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Update request cookies for the current server components
           request.cookies.set({ name, value, ...options })
-          // Refresh the response to include the new cookie header
           response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+            request: { headers: request.headers },
           })
           response.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: '', ...options })
           response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+            request: { headers: request.headers },
           })
           response.cookies.set({ name, value: '', ...options })
         },
@@ -46,8 +35,7 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // This is the critical line: it forces Supabase to check the JWT 
-  // and refresh it via the cookie methods above if it is expired.
+  // This is what prevents your "JWT expired" issue permanently
   await supabase.auth.getUser()
 
   return response
@@ -55,13 +43,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - Static assets (svg, png, jpg, etc.)
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

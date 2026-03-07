@@ -13,7 +13,7 @@ const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 
       {type === 'success' ? <Check size={20} /> : <AlertCircle size={20} />}
     </div>
     <div className="flex flex-col">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">
+      <p className="text-[10px] font-black  tracking-[0.2em] opacity-50">
         {type === 'success' ? 'System Success' : 'Security/System Error'}
       </p>
       <p className="text-sm font-bold leading-tight">{message}</p>
@@ -149,12 +149,12 @@ export default function AdminTeam() {
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-[#0A192F] pb-6">
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-[#0A192F]">Team Management</h1>
-          <p className="text-sm text-[#F59E0B] font-bold uppercase tracking-[0.2em] mt-1">Personnel Control Panel</p>
+          <h1 className="text-3xl font-black  tracking-tighter text-[#0A192F]">Team Management</h1>
+          <p className="text-sm text-[#F59E0B] font-bold  tracking-[0.2em] mt-1">Personnel Control Panel</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)} 
-          className="bg-[#0A192F] text-white px-8 py-4 rounded-sm text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#F59E0B] hover:text-[#0A192F] transition-all shadow-lg"
+          className="bg-[#0A192F] text-white px-8 py-4 rounded-sm text-xs font-black  tracking-widest flex items-center justify-center gap-2 hover:bg-[#F59E0B] hover:text-[#0A192F] transition-all shadow-lg"
         >
           <Plus size={18} /> Add New Member
         </button>
@@ -178,14 +178,14 @@ export default function AdminTeam() {
                 )}
               </div>
               <div className="p-4 text-center flex-grow">
-                <p className="font-black uppercase text-[#0A192F] text-sm tracking-tight truncate">{member.name}</p>
-                <p className="text-[#C2912E] text-[10px] font-bold uppercase tracking-widest mt-1">{member.role}</p>
+                <p className="font-black  text-[#0A192F] text-sm tracking-tight truncate">{member.name}</p>
+                <p className="text-[#C2912E] text-[10px] font-bold  tracking-widest mt-1">{member.role}</p>
               </div>
               <div className="grid grid-cols-2 border-t-2 border-gray-100">
-                <button onClick={() => openEditModal(member)} className="flex items-center justify-center gap-2 py-3 text-[10px] font-black uppercase tracking-tighter text-[#0A192F] hover:bg-gray-50 border-r-2 border-gray-100 transition-colors">
+                <button onClick={() => openEditModal(member)} className="flex items-center justify-center gap-2 py-3 text-[10px] font-black  tracking-tighter text-[#0A192F] hover:bg-gray-50 border-r-2 border-gray-100 transition-colors">
                   <Edit2 size={14} /> 
                 </button>
-                <button onClick={() => deleteMember(member.id)} className="flex items-center justify-center gap-2 py-3 text-[10px] font-black uppercase tracking-tighter text-red-600 hover:bg-red-50 transition-colors">
+                <button onClick={() => deleteMember(member.id)} className="flex items-center justify-center gap-2 py-3 text-[10px] font-black  tracking-tighter text-red-600 hover:bg-red-50 transition-colors">
                   <Trash2 size={14} /> 
                 </button>
               </div>
@@ -200,7 +200,7 @@ export default function AdminTeam() {
             <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-black">
               <X size={24} />
             </button>
-            <h2 className="text-2xl font-black uppercase text-[#0A192F] mb-8 text-center tracking-tighter">
+            <h2 className="text-2xl font-black  text-[#0A192F] mb-8 text-center tracking-tighter">
               {editingId ? 'Edit Profile' : 'Add New Member'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -213,17 +213,17 @@ export default function AdminTeam() {
                   <Camera size={40} className="text-gray-300 mb-4" />
                 )}
                 <label className="cursor-pointer">
-                  <span className="bg-[#0A192F] text-white px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-sm hover:bg-[#F59E0B] transition-colors">
+                  <span className="bg-[#0A192F] text-white px-5 py-2 text-[10px] font-black  tracking-widest rounded-sm hover:bg-[#F59E0B] transition-colors">
                     {uploading ? "Compressing..." : "Upload Photo"}
                   </span>
                   <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} disabled={uploading} />
                 </label>
               </div>
               <div className="space-y-4">
-                <input required placeholder="FULL NAME" value={formData.name} className="w-full p-4 border-2 border-gray-300 text-xs font-bold uppercase outline-none focus:border-[#F59E0B]" onChange={e => setFormData({...formData, name: e.target.value})} />
-                <input required placeholder="JOB ROLE" value={formData.role} className="w-full p-4 border-2 border-gray-300 text-xs font-bold uppercase outline-none focus:border-[#F59E0B]" onChange={e => setFormData({...formData, role: e.target.value})} />
+                <input required placeholder="FULL NAME" value={formData.name} className="w-full p-4 border-2 border-gray-300 text-xs font-bold  outline-none focus:border-[#F59E0B]" onChange={e => setFormData({...formData, name: e.target.value})} />
+                <input required placeholder="JOB ROLE" value={formData.role} className="w-full p-4 border-2 border-gray-300 text-xs font-bold  outline-none focus:border-[#F59E0B]" onChange={e => setFormData({...formData, role: e.target.value})} />
               </div>
-              <button type="submit" disabled={loading || uploading} className="w-full bg-[#F59E0B] text-[#0A192F] py-5 font-black uppercase text-xs tracking-[0.3em] hover:bg-[#0A192F] hover:text-white transition-all flex justify-center items-center">
+              <button type="submit" disabled={loading || uploading} className="w-full bg-[#F59E0B] text-[#0A192F] py-5 font-black  text-xs tracking-[0.3em] hover:bg-[#0A192F] hover:text-white transition-all flex justify-center items-center">
                 {loading ? <Loader2 className="animate-spin" /> : editingId ? 'Update Record' : 'Save Member'}
               </button>
             </form>

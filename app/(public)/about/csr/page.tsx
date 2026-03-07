@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Users, GraduationCap, Globe } from 'lucide-react';
+import { Heart, Users, GraduationCap } from 'lucide-react';
 
 export default function CSRPage() {
   const initiatives = [
@@ -29,11 +29,11 @@ export default function CSRPage() {
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-6xl font-black text-[#1E40AF] tracking-tighter uppercase mb-6"
+          className="text-4xl md:text-6xl font-black text-[#1E40AF] tracking-tighter  mb-6"
         >
           CSR <span className="text-[#15803D]">Initiatives</span>
         </motion.h1>
-        <h2 className="text-xs font-black tracking-[0.4em] text-[#15803D] uppercase mb-4">Engineering for a Better Ethiopia</h2>
+        <h2 className="text-xs font-black tracking-[0.4em] text-[#15803D]  mb-4">Engineering for a Better Ethiopia</h2>
         <div className="w-24 h-1.5 bg-[#1E40AF] mx-auto mt-6"></div>
       </section>
 
@@ -45,7 +45,7 @@ export default function CSRPage() {
               <div className="bg-[#15803D]/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
                 <item.icon className="text-[#15803D]" size={32} />
               </div>
-              <h3 className="text-xl font-black text-[#1E40AF] mb-4 uppercase">{item.title}</h3>
+              <h3 className="text-xl font-black text-[#1E40AF] mb-4">{item.title}</h3>
               <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
             </div>
           </div>

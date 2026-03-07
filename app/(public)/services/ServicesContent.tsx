@@ -65,6 +65,24 @@
 //       desc: "Essential infrastructure for a growing nation. Our team handles roads, bridges, and drainage systems with technical excellence.",
 //       features: ["Road Construction", "Bridge Engineering", "Drainage Systems", "Earthworks"]
 //     },
+// {
+//   icon: Pickaxe, // or another mining-related icon
+//   title: "Mining",
+//   desc: "Comprehensive mining services including exploration, extraction, and mineral processing, prioritizing safety, efficiency, and sustainable practices.",
+//   features: ["Mineral Exploration", "Ore Extraction", "Processing & Refinement", "Environmental Compliance"]
+// },
+// {
+//   icon: Globe, // or another import/export-related icon
+//   title: "Import & Export",
+//   desc: "Facilitating international trade by importing and exporting goods efficiently, ensuring regulatory compliance and seamless logistics.",
+//   features: ["Global Sourcing", "Customs Clearance", "Freight & Logistics", "Trade Compliance"]
+// },
+// {
+//   icon: Tractor, // or another agriculture-related icon
+//   title: "Agriculture",
+//   desc: "Providing agricultural solutions from farm management to crop production and supply chain services, supporting sustainable growth and food security.",
+//   features: ["Crop Cultivation", "Farm Management", "Agri-Equipment Supply", "Sustainable Practices"]
+// }
     
 //   ];
 
@@ -160,8 +178,16 @@ import { supabase } from '@/lib/supabase';
 import * as Icons from 'lucide-react';
 import Link from 'next/link';
 
+interface Service {
+  id: number;
+  icon_name: string;
+  title: string;
+  description: string;
+  features?: string[];
+}
+
 export const ServicesContent = () => {
-  const [services, setServices] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -191,7 +217,7 @@ export const ServicesContent = () => {
               Our <span className="text-[#15803d]">Services</span>
             </h1>
             <p className="text-xl text-slate-500 max-w-2xl mx-auto font-medium">
-              Comprehensive engineering and construction solutions tailored to build Ethiopia's future.
+              Comprehensive engineering and construction solutions tailored to build Ethiopia&apos;s future.
             </p>
           </motion.div>
         </div>
@@ -203,7 +229,7 @@ export const ServicesContent = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {services.map((service, i) => {
               // Dynamic Icon Logic
-              const IconComponent = (Icons as any)[service.icon_name] || Icons.Briefcase;
+              const IconComponent = ((Icons as unknown) as Record<string, React.ComponentType<{ className?: string; size?: number }> >)[service.icon_name] || Icons.Briefcase;
 
               return (
                 <motion.div

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Linkedin, Mail, Loader2 } from "lucide-react";
+import {  Mail, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { supabase } from '@/lib/supabase';
 
@@ -41,7 +41,7 @@ export default function TeamPage() {
   return (
     <div className="pt-32 pb-20 bg-white min-h-screen">
       <section className="max-w-7xl mx-auto px-6 mb-20">
-        <h1 className="text-5xl md:text-7xl text-[#0A192F] font-black uppercase mb-6">
+        <h1 className="text-5xl md:text-7xl text-[#0A192F] font-black mb-6">
           Our <span className="text-[#C2912E]">Team</span>
         </h1>
         <p className="text-xl text-gray-500 max-w-2xl font-medium">
@@ -70,19 +70,21 @@ export default function TeamPage() {
                         <Mail size={20} />
                       </a>
                     )}
-                    {member.linkedin_url && (
-                      <a href={member.linkedin_url} target="_blank" className="text-white hover:text-[#C2912E] transition-colors">
-                        <Linkedin size={20} />
-                      </a>
-                    )}
                   </div>
                 </div>
               </div>
 
               <div className="relative">
-                <h3 className="text-2xl font-black text-[#0A192F] uppercase mb-1">{member.name}</h3>
-                <p className="text-[#C2912E] font-bold text-sm uppercase tracking-widest mb-4">{member.role}</p>
-                <p className="text-gray-500 text-sm leading-relaxed max-w-sm">{member.bio}</p>
+                {/* Added 'capitalize' and 'lowercas' to ensure 
+                   the first letter is Big and the rest are small 
+                */}
+                <h3 className="text-2xl font-black text-[#0A192F] mb-1 capitalize">
+                  {member.name}
+                </h3>
+                <p className="text-[#C2912E] font-bold text-sm tracking-widest mb-4 capitalize">
+                  {member.role}
+                </p>
+                
               </div>
             </div>
           ))}

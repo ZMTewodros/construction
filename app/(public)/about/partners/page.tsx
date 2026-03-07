@@ -51,11 +51,11 @@ export default function OurPartnersPage() {
           animate={{ opacity: 1, y: 0 }}
           className="inline-block mb-4"
         >
-          <h1 className="text-sm md:text-xl font-black tracking-[0.4em] text-[#15803D] uppercase">
+          <h1 className="text-sm md:text-xl font-black tracking-[0.4em] text-[#15803D]">
             Professional Network
           </h1>
         </motion.div>
-        <h1 className="text-4xl md:text-6xl font-black text-[#1E40AF] tracking-tighter mb-6 uppercase">
+        <h1 className="text-4xl md:text-6xl font-black text-[#1E40AF] tracking-tighter mb-6">
           Our Trusted <span className="text-[#15803D]">Clients & Partners</span>
         </h1>
         <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium leading-relaxed">
@@ -99,13 +99,13 @@ export default function OurPartnersPage() {
       <section className="max-w-4xl mx-auto px-6 mt-32">
         <div className="bg-[#1E40AF] rounded-3xl p-12 text-center text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#15803D] rounded-full -mr-16 -mt-16 opacity-20"></div>
-          <h3 className="text-xl md:text-3xl font-black mb-6 relative z-10 uppercase">Become a Partner</h3>
+          <h3 className="text-xl md:text-3xl font-black mb-6 relative z-10">Become a Partner</h3>
           <p className="text-blue-100 mb-10 text-lg relative z-10">
             Join our network of excellence and help us build the foundations of Ethiopia together.
           </p>
           <Link 
             href="/contact" 
-            className="inline-flex items-center gap-2 px-10 py-4 bg-[#15803D] hover:bg-white hover:text-[#1E40AF] text-white font-bold uppercase transition-all rounded-sm relative z-10"
+            className="inline-flex items-center gap-2 px-10 py-4 bg-[#15803D] hover:bg-white hover:text-[#1E40AF] text-white font-bold  transition-all rounded-sm relative z-10"
           >
             Contact Us <ArrowRight size={20} />
           </Link>

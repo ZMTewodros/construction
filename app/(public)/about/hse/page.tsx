@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, HardHat, Recycle, Activity, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { ShieldCheck, HardHat, Recycle } from 'lucide-react';
 
 export default function HSEPolicyPage() {
   const policies = [
@@ -30,7 +29,7 @@ export default function HSEPolicyPage() {
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-6xl font-black text-[#1E40AF] tracking-tighter uppercase mb-6"
+          className="text-4xl md:text-6xl font-black text-[#1E40AF] tracking-tighter  mb-6"
         >
           HSE <span className="text-[#15803D]">Policy</span>
         </motion.h1>
@@ -45,7 +44,7 @@ export default function HSEPolicyPage() {
         {policies.map((item, index) => (
           <div key={index} className="p-10 bg-slate-50 border-t-4 border-[#15803D] rounded-xl hover:shadow-2xl transition-all group">
             <item.icon className="text-[#1E40AF] mb-6 group-hover:scale-110 transition-transform" size={48} />
-            <h3 className="text-xl font-black text-[#1E40AF] mb-4 uppercase">{item.title}</h3>
+            <h3 className="text-xl font-black text-[#1E40AF] mb-4 ">{item.title}</h3>
             <p className="text-slate-600 leading-relaxed font-medium">{item.desc}</p>
           </div>
         ))}

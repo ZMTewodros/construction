@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Phone, Mail, MapPin, Facebook, Linkedin, Twitter } from 'lucide-react';
+import { Phone, Mail, MapPin, Send } from 'lucide-react';
 
 const FooterLogo = () => (
   <span className="flex items-center bg-white rounded shadow-sm py-1 pl-1.5 pr-3 space-x-2">
@@ -34,7 +34,7 @@ const FooterLogo = () => (
 const Footer = () => {
   return (
     // Background set to Orange with reduced padding
-    <footer className="bg-[#EA580C] text-white py-8 border-t border-orange-600">
+    <footer className="bg-[#EA580C] text-white py-4 border-t border-orange-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-6">
         
         {/* Brand Column */}
@@ -45,12 +45,15 @@ const Footer = () => {
           <p className="text-orange-50 text-[10px] leading-relaxed max-w-xs font-medium">
             Building Ethiopia&apos;s future with humility, integrity, and world-class engineering.
           </p>
-          <div className="flex space-x-3 pt-1">
-            <Facebook size={14} className="text-white hover:text-blue-800 transition-colors cursor-pointer" />
-            <Twitter size={14} className="text-white hover:text-blue-800 transition-colors cursor-pointer" />
-            <Linkedin size={14} className="text-white hover:text-blue-800 transition-colors cursor-pointer" />
-          </div>
-        </div>
+<div className="flex space-x-3 pt-1">
+  <a href="https://t.me/israwase" target="_blank" rel="noopener noreferrer">
+    <Send 
+      size={14} 
+      className="text-white hover:text-blue-500 transition-colors cursor-pointer" 
+    />
+  </a>
+</div>
+  </div>
 
         {/* Navigation */}
         <div>
@@ -102,7 +105,7 @@ const Footer = () => {
 
       {/* Copyright */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center text-orange-100 text-[8px] uppercase tracking-[0.3em] mt-8 border-t border-orange-400/30 pt-4">
+        <div className="text-center text-orange-100 text-[8px]  tracking-[0.3em] mt-8 border-t border-orange-400/30 pt-4">
           &copy; {new Date().getFullYear()} Tihut Engineering.
         </div>
       </div>

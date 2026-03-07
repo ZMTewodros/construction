@@ -2,15 +2,42 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Trash2, Upload, Plus } from 'lucide-react';
+import { Loader2, Trash2, Upload, Plus, Check, AlertCircle, X } from 'lucide-react';
 import Image from 'next/image';
+import imageCompression from 'browser-image-compression';
+
+// --- UI COMPONENTS: PROFESSIONAL TOAST ---
+const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) => (
+  <div className="fixed top-6 right-6 z-[300] flex items-center gap-4 bg-[#0A192F] text-white px-6 py-4 rounded-2xl shadow-2xl border-2 border-white/10 animate-in slide-in-from-right-10">
+    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${type === 'success' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+      {type === 'success' ? <Check size={20} /> : <AlertCircle size={20} />}
+    </div>
+    <div className="flex flex-col">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">
+        {type === 'success' ? 'System Success' : 'Security/System Error'}
+      </p>
+      <p className="text-sm font-bold leading-tight">{message}</p>
+    </div>
+    <button onClick={onClose} className="ml-4 text-gray-400 hover:text-white transition-colors">
+      <X size={18} />
+    </button>
+  </div>
+);
 
 export default function AdminPartners() {
-  const [partners, setPartners] = useState<any[]>([]);
+  type Partner = {
+    id: string;
+    logo_url: string;
+    created_at?: string;
+    // Add other fields as needed based on your database schema
+  };
+
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     fetchPartners();
@@ -26,6 +53,13 @@ export default function AdminPartners() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   async function fetchPartners() {
     setLoading(true);
     const { data } = await supabase
@@ -38,18 +72,27 @@ export default function AdminPartners() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return alert("Please select a logo to upload");
+    if (!file) return;
 
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      // --- IMAGE COMPRESSION LOGIC ---
+      const options = { 
+        maxSizeMB: 0.2, // Logos can be even smaller than profile photos
+        maxWidthOrHeight: 800, 
+        useWebWorker: true,
+        fileType: 'image/webp' // Convert to WebP for maximum efficiency
+      };
+      
+      const compressedFile = await imageCompression(file, options);
+      
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
       const filePath = `logos/${fileName}`;
 
-      // Upload file to bucket
+      // Upload compressed file to bucket
       const { error: uploadError } = await supabase.storage
         .from('partner-logos')
-        .upload(filePath, file);
+        .upload(filePath, compressedFile);
 
       if (uploadError) throw uploadError;
 
@@ -58,7 +101,7 @@ export default function AdminPartners() {
         .from('partner-logos')
         .getPublicUrl(filePath);
 
-      // Insert ONLY the logo_url into the database
+      // Insert into database
       const { error: dbError } = await supabase
         .from('partners')
         .insert([{ logo_url: publicUrl }]);
@@ -66,51 +109,64 @@ export default function AdminPartners() {
       if (dbError) throw dbError;
 
       setFile(null);
+      setToast({ message: "Partner logo optimized & published!", type: 'success' });
       fetchPartners();
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error: unknown) {
+      const message = typeof error === 'object' && error !== null && 'message' in error
+        ? (error as { message: string }).message
+        : 'An unexpected error occurred';
+      setToast({ message, type: 'error' });
     } finally {
       setUploading(false);
     }
   };
 
   const deletePartner = async (id: string, logoUrl: string) => {
-    if (!confirm("Are you sure you want to delete this logo?")) return;
+    if (!confirm("Permanently remove this partner logo?")) return;
 
     try {
-      // Extract the filename from the end of the URL
+      // Extract filename from URL
       const fileName = logoUrl.split('/').pop();
       if (fileName) {
         await supabase.storage.from('partner-logos').remove([`logos/${fileName}`]);
       }
       
-      await supabase.from('partners').delete().eq('id', id);
+      const { error } = await supabase.from('partners').delete().eq('id', id);
+      if (error) throw error;
+
+      setToast({ message: "Partner removed successfully", type: 'success' });
       fetchPartners();
-    } catch (error) {
-      console.error("Delete Error:", error);
+    } catch (error: unknown) {
+      const message = typeof error === 'object' && error !== null && 'message' in error
+        ? (error as { message: string }).message
+        : 'An unexpected error occurred';
+      setToast({ message, type: 'error' });
     }
   };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
-      <div className="mb-10">
-        <h1 className="text-3xl font-black text-[#1E40AF] tracking-tight uppercase">Manage Partners</h1>
-        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Logo Gallery Management</p>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      <div className="mb-10 border-b-2 border-slate-100 pb-6">
+        <h1 className="text-3xl font-black text-[#0A192F] tracking-tight uppercase">Manage Partners</h1>
+        <p className="text-[#C2912E] text-xs font-bold uppercase tracking-widest mt-1">Logo Gallery Management</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* UPLOAD FORM */}
         <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 h-fit sticky top-24">
-          <h2 className="text-sm font-black text-[#1E40AF] uppercase mb-6 flex items-center gap-2">
-            <Plus size={16} className="text-[#15803D]" /> New Logo
+          <h2 className="text-sm font-black text-[#0A192F] uppercase mb-6 flex items-center gap-2">
+            <Plus size={16} className="text-[#C2912E]" /> New Logo
           </h2>
           <form onSubmit={handleUpload} className="space-y-6">
-            <div className={`relative border-2 border-dashed ${previewUrl ? 'border-[#15803D] bg-green-50' : 'border-slate-200'} rounded-2xl p-8 text-center transition-all hover:bg-slate-50`}>
+            <div className={`relative border-2 border-dashed ${previewUrl ? 'border-[#C2912E] bg-orange-50/30' : 'border-slate-200'} rounded-2xl p-8 text-center transition-all hover:bg-slate-50`}>
               <input 
                 type="file" 
                 accept="image/*"
                 className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
+                disabled={uploading}
               />
               {previewUrl ? (
                 <div className="relative py-2 flex flex-col items-center">
@@ -122,12 +178,12 @@ export default function AdminPartners() {
                     className="h-32 w-auto object-contain mb-4" 
                     unoptimized
                   />
-                  <p className="text-[10px] text-[#15803D] font-black uppercase">Click to change</p>
+                  <p className="text-[10px] text-[#C2912E] font-black uppercase">Click to change</p>
                 </div>
               ) : (
                 <div className="py-8">
                   <Upload className="mx-auto text-slate-300 mb-3" size={40} />
-                  <p className="text-[10px] text-slate-400 font-black uppercase">Click to upload logo</p>
+                  <p className="text-[10px] text-slate-400 font-black uppercase">Select Logo File</p>
                 </div>
               )}
             </div>
@@ -135,18 +191,18 @@ export default function AdminPartners() {
             <button 
               type="submit"
               disabled={uploading || !file}
-              className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg ${
-                !file ? 'bg-slate-100 text-slate-400' : 'bg-[#1E40AF] text-white hover:bg-blue-800'
+              className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg flex justify-center items-center ${
+                !file ? 'bg-slate-100 text-slate-400' : 'bg-[#0A192F] text-white hover:bg-[#C2912E]'
               }`}
             >
-              {uploading ? <Loader2 className="animate-spin mx-auto" size={18} /> : "Publish Partner"}
+              {uploading ? <Loader2 className="animate-spin" size={18} /> : "Publish Partner"}
             </button>
           </form>
         </div>
 
         {/* LOGO LIST */}
         <div className="lg:col-span-2">
-          <h2 className="text-sm font-black text-[#1E40AF] uppercase mb-6 tracking-widest">Live Logos ({partners.length})</h2>
+          <h2 className="text-sm font-black text-[#0A192F] uppercase mb-6 tracking-widest">Live Logos ({partners.length})</h2>
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-200" size={32} /></div>
           ) : (

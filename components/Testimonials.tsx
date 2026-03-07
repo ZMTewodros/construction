@@ -21,32 +21,37 @@ export const Testimonials = () => {
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Use useCallback to prevent unnecessary re-renders
   const fetchTestimonials = useCallback(async (isRetry = false) => {
     try {
       if (!isRetry) setLoading(true);
 
+      // 1. Proactive Session Check: Forces the client to sync with cookies
+      // and refresh the JWT if the middleware hasn't already done it.
+      const { } = await supabase.auth.getSession();
+
+      // 2. Fetch data
       const { data, error } = await supabase
         .from('testimonials')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
-        // PGRST303 is the "JWT Expired" code
+        // PGRST303 is the specific PostgREST error for an expired JWT
         if (error.code === 'PGRST303' && !isRetry) {
-          console.warn("JWT Expired. Attempting silent refresh...");
-          // Force the client to refresh the session
-          const { error: refreshError } = await supabase.auth.getSession();
-          if (!refreshError) {
-            return fetchTestimonials(true); // Retry once with new token
-          }
+          console.warn("JWT Expired caught. Attempting manual refresh...");
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          if (refreshData.session) return fetchTestimonials(true);
         }
         throw error;
       }
 
       if (data) setList(data);
-    } catch (err: any) {
-      console.error("Critical error fetching testimonials:", err.message || err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Critical error fetching testimonials:", err.message);
+      } else {
+        console.error("Critical error fetching testimonials:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -56,12 +61,11 @@ export const Testimonials = () => {
     fetchTestimonials();
   }, [fetchTestimonials]);
 
-  // Carousel timer
   useEffect(() => {
     if (list.length <= 1) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % list.length);
-    }, 8000); // Increased to 8s for readability
+    }, 8000);
     return () => clearInterval(timer);
   }, [list]);
 
@@ -91,8 +95,8 @@ export const Testimonials = () => {
             Client <span className="text-[#15803d]">Testimonials</span>
           </h2>
           <div className="h-1.5 w-24 bg-[#15803d] mx-auto mb-4"></div>
-          <p className="text-slate-500 tracking-widest text-[15px] font-bold">
-            TRUSTED BY LEADERS ACROSS THE INDUSTRY
+          <p className="text-slate-500 tracking-widest text-[12px] font-bold">
+            Trusted by Leaders Across the Industry
           </p>
         </div>
 
@@ -144,7 +148,7 @@ export const Testimonials = () => {
                     <h4 className="text-white font-black tracking-wider text-2xl">
                       {list[index].name}
                     </h4>
-                    <p className="text-[#15803d] text-sm font-black uppercase tracking-[0.2em] mt-1">
+                    <p className="text-[#15803d] text-sm font-black tracking-[0.2em] mt-1">
                       {list[index].position}
                     </p>
                   </div>
@@ -153,7 +157,6 @@ export const Testimonials = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation Dots */}
           {list.length > 1 && (
             <div className="flex justify-center mt-12 space-x-4">
               {list.map((_, i) => (
